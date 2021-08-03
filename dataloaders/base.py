@@ -5,6 +5,7 @@ import random
 
 
 class AbstractDataloader(metaclass=ABCMeta):
+
     def __init__(self, args, dataset):
         self.args = args
         seed = args.dataloader_random_seed

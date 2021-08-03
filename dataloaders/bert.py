@@ -28,7 +28,8 @@ class BertDataloader(AbstractDataloader):
         return dataloader
 
     def _get_train_dataset(self):
-        dataset = BertTrainDataset(self.train, self.max_len, self.mask_prob, self.CLOZE_MASK_TOKEN, self.item_count, self.rng)
+        dataset = BertTrainDataset(
+            self.train, self.max_len, self.mask_prob, self.CLOZE_MASK_TOKEN, self.item_count, self.rng)
         return dataset
 
     def _get_val_loader(self):
@@ -46,7 +47,8 @@ class BertDataloader(AbstractDataloader):
 
     def _get_eval_dataset(self, mode):
         answers = self.val if mode == 'val' else self.test
-        dataset = BertEvalDataset(self.train, answers, self.max_len, self.CLOZE_MASK_TOKEN, self.test_negative_samples)
+        dataset = BertEvalDataset(
+            self.train, answers, self.max_len, self.CLOZE_MASK_TOKEN, self.test_negative_samples)
         return dataset
 
 
@@ -100,7 +102,6 @@ class BertTrainDataset(data_utils.Dataset):
         return self.u2seq[user]
 
 
-
 class BertEvalDataset(data_utils.Dataset):
     def __init__(self, u2seq, u2answer, max_len, mask_token, negative_samples):
         self.u2seq = u2seq
@@ -128,4 +129,3 @@ class BertEvalDataset(data_utils.Dataset):
         seq = [0] * padding_len + seq
 
         return torch.LongTensor(seq), torch.LongTensor(candidates), torch.LongTensor(labels)
-
