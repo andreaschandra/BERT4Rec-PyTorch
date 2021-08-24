@@ -5,6 +5,7 @@ import torch.utils.data as data_utils
 
 
 class BertDataloader(AbstractDataloader):
+
     def __init__(self, args, dataset):
         super().__init__(args, dataset)
         self.max_len = args.bert_max_len
@@ -30,6 +31,7 @@ class BertDataloader(AbstractDataloader):
     def _get_train_dataset(self):
         dataset = BertTrainDataset(
             self.train, self.max_len, self.mask_prob, self.CLOZE_MASK_TOKEN, self.item_count, self.rng)
+
         return dataset
 
     def _get_val_loader(self):
@@ -53,6 +55,7 @@ class BertDataloader(AbstractDataloader):
 
 
 class BertTrainDataset(data_utils.Dataset):
+
     def __init__(self, u2seq, max_len, mask_prob, mask_token, num_items, rng):
         self.u2seq = u2seq
         self.users = sorted(self.u2seq.keys())
@@ -61,9 +64,6 @@ class BertTrainDataset(data_utils.Dataset):
         self.mask_token = mask_token
         self.num_items = num_items
         self.rng = rng
-
-    def __len__(self):
-        return len(self.users)
 
     def __getitem__(self, index):
         user = self.users[index]
@@ -98,11 +98,15 @@ class BertTrainDataset(data_utils.Dataset):
 
         return torch.LongTensor(tokens), torch.LongTensor(labels)
 
+    def __len__(self):
+        return len(self.users)
+
     def _getseq(self, user):
         return self.u2seq[user]
 
 
 class BertEvalDataset(data_utils.Dataset):
+
     def __init__(self, u2seq, u2answer, max_len, mask_token, negative_samples):
         self.u2seq = u2seq
         self.users = sorted(self.u2seq.keys())
@@ -110,9 +114,6 @@ class BertEvalDataset(data_utils.Dataset):
         self.max_len = max_len
         self.mask_token = mask_token
         self.negative_samples = negative_samples
-
-    def __len__(self):
-        return len(self.users)
 
     def __getitem__(self, index):
         user = self.users[index]
@@ -129,3 +130,6 @@ class BertEvalDataset(data_utils.Dataset):
         seq = [0] * padding_len + seq
 
         return torch.LongTensor(seq), torch.LongTensor(candidates), torch.LongTensor(labels)
+
+    def __len__(self):
+        return len(self.users)
