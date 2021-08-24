@@ -11,3 +11,10 @@ pip install -r requirements.txt
 ```
 python main.py
 ```
+
+Alternatively you can run using notebook
+And run sequentially
+
+```
+exp_train.ipynb
+```
