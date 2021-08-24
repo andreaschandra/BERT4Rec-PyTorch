@@ -5,6 +5,7 @@ import torch.nn as nn
 
 
 class BERTModel(BaseModel):
+
     def __init__(self, args):
         super().__init__(args)
         self.bert = BERT(args)
