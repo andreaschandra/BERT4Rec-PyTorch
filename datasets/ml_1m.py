@@ -1,11 +1,10 @@
 from .base import AbstractDataset
-
 import pandas as pd
-
 from datetime import date
 
 
 class ML1MDataset(AbstractDataset):
+
     @classmethod
     def code(cls):
         return 'ml-1m'
@@ -28,8 +27,6 @@ class ML1MDataset(AbstractDataset):
     def load_ratings_df(self):
         folder_path = self._get_rawdata_folder_path()
         file_path = folder_path.joinpath('ratings.dat')
-        df = pd.read_csv(file_path, sep='::', header=None)
+        df = pd.read_csv(file_path, sep='::', header=None, engine='python')
         df.columns = ['uid', 'sid', 'rating', 'timestamp']
         return df
-
-

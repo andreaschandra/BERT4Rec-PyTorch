@@ -1,3 +1,9 @@
+import pickle
+import shutil
+import tempfile
+import os
+from pathlib import Path
+from abc import *
 from .utils import *
 from config import RAW_DATASET_ROOT_FOLDER
 
@@ -5,15 +11,9 @@ import pandas as pd
 from tqdm import tqdm
 tqdm.pandas()
 
-from abc import *
-from pathlib import Path
-import os
-import tempfile
-import shutil
-import pickle
-
 
 class AbstractDataset(metaclass=ABCMeta):
+
     def __init__(self, args):
         self.args = args
         self.min_rating = args.min_rating
@@ -61,22 +61,29 @@ class AbstractDataset(metaclass=ABCMeta):
 
     def preprocess(self):
         dataset_path = self._get_preprocessed_dataset_path()
+
         if dataset_path.is_file():
             print('Already preprocessed. Skip preprocessing')
             return
+
         if not dataset_path.parent.is_dir():
             dataset_path.parent.mkdir(parents=True)
+
         self.maybe_download_raw_dataset()
+
         df = self.load_ratings_df()
         df = self.make_implicit(df)
         df = self.filter_triplets(df)
         df, umap, smap = self.densify_index(df)
+
         train, val, test = self.split_df(df, len(umap))
+
         dataset = {'train': train,
                    'val': val,
                    'test': test,
                    'umap': umap,
                    'smap': smap}
+
         with dataset_path.open('wb') as f:
             pickle.dump(dataset, f)
 
@@ -86,6 +93,7 @@ class AbstractDataset(metaclass=ABCMeta):
            all(folder_path.joinpath(filename).is_file() for filename in self.all_raw_file_names()):
             print('Raw data already exists. Skip downloading')
             return
+
         print("Raw file doesn't exist. Downloading...")
         if self.is_zipfile():
             tmproot = Path(tempfile.mkdtemp())
@@ -110,7 +118,6 @@ class AbstractDataset(metaclass=ABCMeta):
     def make_implicit(self, df):
         print('Turning into implicit ratings')
         df = df[df['rating'] >= self.min_rating]
-        # return df[['uid', 'sid', 'timestamp']]
         return df
 
     def filter_triplets(self, df):
@@ -139,11 +146,15 @@ class AbstractDataset(metaclass=ABCMeta):
         if self.args.split == 'leave_one_out':
             print('Splitting')
             user_group = df.groupby('uid')
-            user2items = user_group.progress_apply(lambda d: list(d.sort_values(by='timestamp')['sid']))
+            user2items = user_group.progress_apply(
+                lambda d: list(d.sort_values(by='timestamp')['sid']))
+
             train, val, test = {}, {}, {}
             for user in range(1, user_count+1):
                 items = user2items[user]
-                train[user], val[user], test[user] = items[:-2], items[-2:-1], items[-1:]
+                train[user], val[user], test[user] = items[:-
+                                                           2], items[-2:-1], items[-1:]
+
             return train, val, test
         else:
             raise NotImplementedError
@@ -168,4 +179,3 @@ class AbstractDataset(metaclass=ABCMeta):
     def _get_preprocessed_dataset_path(self):
         folder = self._get_preprocessed_folder_path()
         return folder.joinpath('dataset.pkl')
-

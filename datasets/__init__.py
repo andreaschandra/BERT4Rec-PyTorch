@@ -1,5 +1,7 @@
 from .ml_1m import ML1MDataset
 
+__all__ = ["ML1MDataset"]
+
 DATASETS = {
     ML1MDataset.code(): ML1MDataset,
 }
